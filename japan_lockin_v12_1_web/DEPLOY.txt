@@ -1,0 +1,63 @@
+JAPAN LOCK-IN — WEB DEPLOYMENT, SYNC, AND ANDROID
+
+WEB BUILD
+1. Open a terminal in this project folder.
+2. Run: npm ci
+3. Run: npm run build
+   This generates the static web site in www/. Do not edit www/ directly.
+
+NETLIFY
+The Netlify configuration builds www/ and keeps the sync function in
+netlify/functions/. To deploy a preview, link this folder to the existing
+Netlify site and run:
+   netlify deploy --build
+
+After testing the preview, publish with:
+   netlify deploy --build --prod
+
+If using Git-based deployment, connect the repository to the existing
+beconsistentjp.netlify.app site. The build command is npm run build, the
+publish directory is www, and the function directory is netlify/functions.
+Keep the existing site if you need its Netlify Blobs data; another site has a
+separate data store. Never commit personal transaction data, pairing codes, or
+signing keys.
+
+CLOUD SYNC
+- Connect the first device with a generated pairing code, then use the same
+  private code on the phone and PC.
+- The sync function uses Netlify Blobs. Changes sync automatically while the
+  app is online and active, with periodic checks and a sync on returning to
+  the app. Browsers may pause background tabs; closed or suspended apps are
+  not promised to sync immediately.
+- Browser builds call the function on their current Netlify origin. The
+  Capacitor Android build calls the existing
+  https://beconsistentjp.netlify.app sync endpoint because its bundled app
+  runs from the device rather than from the Netlify site.
+- Keep the pairing code private. Anyone with it can access that shared sync
+  space. A different code creates a separate space.
+- Test on a Netlify preview before production: pair two devices, make a
+  harmless edit, and confirm it appears on both.
+
+ANDROID APK
+The Capacitor Android app implements on-device task/Finance notifications,
+alarm rescheduling after boot/time changes, and spoken reminders through the
+installed Android TTS engine. It does not use Firebase or remote push. Build
+and copy the web assets first:
+   npm ci
+   npm run build
+   npx cap sync android
+
+Then open android/ in Android Studio to build the APK. Users must allow Android
+notification permission and, where required, the separate Alarms & reminders
+special access for exact timing. Without exact access, alarms fall back to
+inexact delivery. Manufacturer battery restrictions and installed TTS voices
+can affect reminder timing and speech. Test notifications, alarms, and speech
+on the target phone before relying on them.
+
+Use a Gradle JDK compatible with this Android Gradle project (JDK 21) and
+install Android SDK platform 36 in Android Studio. Newer bundled Java runtimes
+may not be compatible with the current Gradle/Groovy build.
+
+After a schedule changes on another device, reopen the Android app while online
+so cloud sync can update its local alarm schedule. Local reminders do not
+arrive from a server while this device has not received the schedule.

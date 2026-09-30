@@ -1,0 +1,57 @@
+JAPAN LOCK-IN V12.1 — MAINTENANCE AND VALIDATION RECORD
+
+Scope reviewed
+- Maintained web application source, Finance module, Netlify sync function,
+  Netlify/Capacitor configuration, and Android wrapper.
+- Dependency folders, local Netlify state, caches, and generated outputs were
+  excluded from source review.
+
+Changes in this maintenance pass
+- Sync uses the same-origin Netlify Function path, client-side batching, and
+  per-key server acknowledgements. Unaccepted changes remain pending locally;
+  explicit validation failures are surfaced in sync status.
+- Server push requests enforce a total body limit and per-entity limit, report
+  accepted/rejected keys, and cap push batches. Pull reads are bounded to
+  batches of 24 concurrent Blob reads.
+- Local/cloud pairing recognizes edits to seeded Finance accounts and default
+  categories, including renamed, disabled, or archived values.
+- Only the selected app module is rendered. Dhaka date/time formatters and
+  Finance currency formatters are reused. Automatic foreground sync checks
+  run every 30 seconds; browsers may suspend background work.
+- Task transitions no longer animate every CSS property, and reduced-motion
+  preferences are respected.
+- `npm run build` creates an allowlisted static bundle in `www/`. Netlify and
+  Capacitor both consume this bundle.
+- Deployment and Android instructions now describe the actual Capacitor
+  scaffold and its reminder limitations.
+- Android now provides native local reminder alarms/notifications, an
+  AndroidBridge, notification and exact-alarm permission/settings flows,
+  boot/time/time-zone rescheduling, and TTS spoken reminders.
+
+Validation performed
+- `npm run build`: passed.
+- `npx cap sync android`: passed.
+- `node --check` for the Finance module and Netlify sync function: passed.
+- Browser classic-script syntax check: passed.
+- Browser smoke test: all eight modules rendered on demand with no page errors.
+- Native bridge mock smoke test: reminder payloads were generated for future
+  task/Finance alerts, the voice setting was forwarded, and Android Settings
+  diagnostics rendered without browser errors.
+- Finance pairing checks: empty defaults are not mistaken for user data;
+  editing a seeded category or account is treated as meaningful data.
+- Lazy-render check: hidden Japanese, Schedule, and Finance sections start
+  empty and populate when selected.
+
+Not verified
+- Cloud sync was not deployed or exercised against the live Netlify Blobs
+  store. Test on a Netlify preview before production deployment.
+- No physical Android device or Android emulator was available for hardware
+  notification, exact-alarm, boot-rescheduling, or TTS testing. Exact timing
+  requires granting Android's Alarms & reminders access; device power
+  management and installed TTS language support can still affect behavior.
+- An Android Gradle build was attempted but could not reach Java compilation:
+  this environment has JDK 25 (incompatible with the current Gradle/Groovy
+  toolchain) and does not have Android SDK platform 36 installed. Use JDK 21
+  and install SDK 36 in Android Studio to build the APK.
+- The implementation schedules reminders locally on this device; it does not
+  include Firebase Cloud Messaging or server-originated push delivery.

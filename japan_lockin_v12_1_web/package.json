@@ -1,0 +1,14 @@
+{
+  "name": "japan-lockin-v11",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@netlify/blobs": "11.1.1"
+  }
+}
